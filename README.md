@@ -34,3 +34,7 @@
 1. Command.js starts up
   a. Reads data/config.txt to see what variables are set
   b. Begins serviceLogging.js
+
+
+
+Node: Individual bot within the botnet
