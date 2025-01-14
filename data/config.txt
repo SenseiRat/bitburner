@@ -1,10 +1,13 @@
-compromiseDevices=ON
+# System Configuration
+verbosity=DEBUG
+hacknetNodes=10
+hacknetLevels=10
+hacknetRam=10
+hacknetCores=10
+
+# Service Toggles
+communication=ON
 hacknetManager=ON
-purchaseServers=ON
-contractSolver=ON
-stockManager=OFF
-intelManager=ON
-control=ON
-processMonitor=ON
-shutdown=OFF
-useExtra=ON
+
+# System Run Variables
+homeWorkerRam=0.00

@@ -1,0 +1,10 @@
+compromiseDevices=ON
+hacknetManager=ON
+purchaseServers=ON
+contractSolver=ON
+stockManager=OFF
+intelManager=ON
+control=ON
+processMonitor=ON
+shutdown=OFF
+useExtra=ON
