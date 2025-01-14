@@ -43,29 +43,32 @@ data/
 6. Send signals to running processes
 
 # Services
-1. contractSolver
+1. --contractSolver
 2. --hacknetManager
-3. upgradeManager (buys computer upgrades)
-4. programManager (buys programs)
-5. compromiseDevices
-6. purchseServers
-7. stockManager
-8. incomeInformation
-9. experienceInformation
-10. ramInformation
-11. augmentationInformation
-12. factionInformation
-13. Communications.js
+3. --upgradeManager (buys computer upgrades)
+4. --programManager (buys programs)
+5. --compromiseDevices
+6. --purchaseServers
+7. --incomeInformation
+8. --experienceInformation
+9. --ramInformation
+10. stockManager
+11. --augmentationInformation
+12. --factionInformation
+        -income
+        -optimal factions to work on
+13. --Communications.js
     1. Set up communication channels to send information to print (communication) and tprint            Communications.js
     2. Configure verbosity levels                                                                       Communications.js
     3. Rotate logs (keep last 3 runs)                                                                   Communications.js
-14. Control.js
+14. --Control.js
     1. Deploy worker.js to any target that doesn't have it                                              Control.js
     2. Check home thread distribution and restart worker.js                                             Control.js
     3. Calculate the optimal distribution of threads per target per command                             Control.js
     4. Transmit commands                                                                                Control.js
 
-
+# Other
+Worker.js
 
 
 

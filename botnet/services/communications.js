@@ -1,68 +1,68 @@
 // File: botnet/services/communications.js
-// Description: Communications service for handling logging and terminal output.
+// Description: Centralized communication service that processes messages from other services and aggregates reports.
 
 /** @param {NS} ns **/
 export async function main(ns) {
-    const CONFIG_PATH = "/data/config.txt";
+    const LOG_PATH = "/data/logs/communication_log.txt";
 
-    // Read configuration to get the allocated port for communications
-    const config = await readConfigFile(ns, CONFIG_PATH);
-    let commPort = 1; // Default port in case of missing config
+    // Aggregated data storage
+    let serviceReports = {};
+    let lastReportTime = new Date().getTime();
+    const reportInterval = 15 * 60 * 1000; // 15 minutes in milliseconds
 
-    try {
-        const portAssignments = JSON.parse(config["portAssignments"] || "{}");
-        if (portAssignments.communication && portAssignments.communication.length > 0) {
-            commPort = portAssignments.communication[0]; // Use the first assigned port for communications
-        } else {
-            ns.tprint("[ERROR] No communication port assigned in config.txt. Defaulting to port 1.");
-        }
-    } catch (err) {
-        ns.tprint(`[ERROR] Failed to parse port assignments from config.txt: ${err.message}`);
-    }
-
-    const logPath = "/data/logs/communications_log.txt";
-
-    // Function to rotate logs
-    async function rotateLogs() {
-        if (ns.fileExists(logPath)) {
-            const oldLog = await ns.read(logPath);
-            await ns.write(`old-${logPath}`, oldLog, "w");
-            await ns.rm(logPath);
-        }
-    }
-
-    await rotateLogs();
-    ns.tprint(`[INFO] Communications service listening on port ${commPort}`);
+    ns.clearPort(1); // Clear the communication port to start fresh
+    ns.tprint("[SUCCESS] Communications service started.");
 
     while (true) {
-        const message = await ns.readPort(commPort);
-        if (message === "NULL PORT DATA") {
-            await ns.sleep(100); // No message, wait before checking again
-            continue;
+        const message = ns.readPort(1);
+        if (message !== "NULL PORT DATA") {
+            // Parse the message and update service reports
+            const [level, ...content] = message.split(" ");
+            const serviceMessage = content.join(" ");
+
+            // Log messages by type
+            if (!serviceReports[level]) {
+                serviceReports[level] = [];
+            }
+            serviceReports[level].push(serviceMessage);
+
+            // Print to terminal if needed
+            if (["[ERROR]", "[SUCCESS]", "[WARN]"].includes(level)) {
+                ns.tprint(`${level} ${serviceMessage}`);
+            }
+
+            // Write to log
+            await ns.write(LOG_PATH, `${new Date().toLocaleTimeString()} ${level} ${serviceMessage}\n`, "a");
         }
 
-        const logEntry = `[${new Date().toLocaleTimeString()}] ${message}`;
-        const levelMatch = message.match(/^\[(\w+)\]/);
-        const level = levelMatch ? levelMatch[1] : "INFO";
+        // Generate a summary report every 15 minutes
+        const currentTime = new Date().getTime();
+        if (currentTime - lastReportTime >= reportInterval) {
+            await generateSummaryReport(ns, serviceReports);
+            lastReportTime = currentTime;
+            serviceReports = {}; // Clear reports after summary
+        }
 
-        switch (level) {
-            case "ERROR":
-            case "SUCCESS":
-                ns.tprint(message); // Print important messages to terminal
-                break;
-            case "DEBUG":
-                if (config["verbosity"] === "DEBUG") {
-                    ns.print(message);
-                }
-                break;
-            case "INFO":
-                ns.print(message); // Log info-level messages to script log
-                break;
-            default:
-                await ns.write(logPath, `${logEntry}\n`, "a");
-                break;
+        await ns.sleep(100); // Small delay to prevent CPU overload
+    }
+}
+
+async function generateSummaryReport(ns, reports) {
+    const time = new Date().toLocaleTimeString();
+    let summary = `[INFO] Summary Report at ${time}:\n`;
+
+    const levels = ["[INFO]", "[SUCCESS]", "[WARN]", "[ERROR]"];
+    for (const level of levels) {
+        if (reports[level] && reports[level].length > 0) {
+            summary += `${level} (${reports[level].length} messages):\n`;
+            for (const message of reports[level]) {
+                summary += `  - ${message}\n`;
+            }
         }
     }
+
+    ns.tprint(summary);
+    await ns.write("/data/logs/summary_reports.txt", summary + "\n", "a");
 }
 
 async function readConfigFile(ns, path) {

@@ -4,10 +4,26 @@ hacknetNodes=10
 hacknetLevels=10
 hacknetRam=10
 hacknetCores=10
+programCost=10
+computerCost=1
+serverCost=10
+contractMinTries=3
+useExcessRam=OFF
 
 # Service Toggles
 communication=ON
 hacknetManager=ON
+programManager=OFF
+compromiseDevices=OFF
+contractSolver=OFF
+control=OFF
+incomeIntel=OFFa
+experienceIntel=OFF
+memoryIntel=OFF
+factionManager=OFF
+augmentationManager=OFF
+stockManager=OFF
 
 # System Run Variables
 homeWorkerRam=0.00
+portAssignments={}
